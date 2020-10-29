@@ -33,6 +33,7 @@ def build(
     attachments="",
     hdr10=False,
     hdr10_opt=False,
+    dhdr10_opt=False,
     repeat_headers=False,
     hdr10plus_metadata="",
     aq_mode=2,
@@ -99,6 +100,8 @@ def build(
         x265_params.append(f"hdr10={'1' if hdr10 else '0'}")
 
     if hdr10plus_metadata:
+        if dhdr10_opt:
+            x265_params.append("dhdr10-opt=1")
         x265_params.append(f"dhdr10-info='{hdr10plus_metadata}'")
 
     if intra_encoding:

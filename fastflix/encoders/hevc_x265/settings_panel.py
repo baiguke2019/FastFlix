@@ -68,8 +68,7 @@ class HEVC(SettingPanel):
         grid.addLayout(self.init_aq_mode(), 5, 4, 1, 2)
         grid.addLayout(self.init_x265_params(), 6, 1, 1, 5)
 
-        grid.addLayout(self.init_dhdr10_info(), 7, 1, 1, 4)
-        grid.addWidget(self.init_dhdr10_warning(), 7, 5, 1, 4)
+        grid.addLayout(self.init_dhdr10_info(), 7, 1, 1, 5)
 
         grid.setRowStretch(9, True)
 
@@ -90,12 +89,15 @@ class HEVC(SettingPanel):
         self.hide()
 
     def init_dhdr10_info(self):
-        return self._add_file_select(
+        layout = self._add_file_select(
             label="HDR10+ Metadata",
             widget_name="hdr10plus_metadata",
             button_action=lambda: self.dhdr10_update(),
             tooltip="dhdr10_info: Path to HDR10+ JSON metadata file",
         )
+        layout.addWidget(self.init_dhdr10_warning())
+        layout.addLayout(self.init_dhdr10_opt())
+        return layout
 
     def init_dhdr10_warning(self):
         label = QtWidgets.QLabel()
@@ -109,6 +111,18 @@ class HEVC(SettingPanel):
         label.setPixmap(icon.pixmap(16))
         # label.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxWarning)
         return label
+
+    def init_dhdr10_opt(self):
+        return self._add_check_box(
+            label="HDR10+ Optimization",
+            widget_name="dhdr10_opt",
+            tooltip=(
+                "dhdr10-opt: reduces SEI overhead.\n"
+                "By only putting the HDR10+ dynamic metadata in only the IDR & frames where the values have changed.\n"
+                " It saves a few bits and can help performance in the client's tonemapper."
+            ),
+            checked=False,
+        )
 
     def init_hdr10(self):
         return self._add_check_box(
@@ -400,6 +414,7 @@ class HEVC(SettingPanel):
             pix_fmt=self.widgets.pix_fmt.currentText().split(":")[1].strip(),
             profile=self.widgets.profile.currentText(),
             hdr10_opt=self.widgets.hdr10_opt.isChecked(),
+            dhdr10_opt=self.widgets.dhdr10_opt.isChecked(),
             repeat_headers=self.widgets.repeat_headers.isChecked(),
             aq_mode=self.widgets.aq_mode.currentIndex(),
             hdr10plus_metadata=self.widgets.hdr10plus_metadata.text().strip().replace("\\", "/"),
